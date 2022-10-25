@@ -15,6 +15,12 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
+    private PreparedStatement makeStatement(Connection c) throws SQLException {
+        PreparedStatement pstmt;
+        pstmt = c.prepareStatement("delete from users");
+        return pstmt;
+    }
+
     public void add(User user) {
         Connection c;
         try {
@@ -77,18 +83,8 @@ public class UserDao {
         }catch (SQLException e){
             throw e;
         } finally {
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
-                } catch (SQLException e) {
-                }
-            }
-            if (c != null){
-                try {
-                    c.close();
-                } catch (SQLException e){
-                }
-            }
+            if (pstmt != null) { try { pstmt.close(); } catch (SQLException e) {} }
+            if (c != null){ try { c.close(); } catch (SQLException e){}}
         }
     }
 
@@ -99,7 +95,8 @@ public class UserDao {
 
         try {
             c = connectionMaker.getConnection();
-            pstmt = c.prepareStatement("select count(*) from users");
+
+            pstmt = makeStatement(c);
 
             rs = pstmt.executeQuery();
             rs.next();
