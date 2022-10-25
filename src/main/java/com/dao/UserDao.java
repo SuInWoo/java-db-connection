@@ -2,120 +2,114 @@ package com.dao;
 
 import com.domain.User;
 
-import java.sql.*;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UserDao {
-    private ConnectionMaker connectionMaker;
 
-    public UserDao() {
-        connectionMaker = new AwsConnectionMaker();
-    }
+    private DataSource dataSource;
 
-    public UserDao(ConnectionMaker connectionMaker) {
-        this.connectionMaker = connectionMaker;
+    public UserDao(DataSource dataSource) {
+            this.dataSource = dataSource;
     }
 
     public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
         Connection c = null;
-        PreparedStatement pstmt = null;
+        PreparedStatement ps = null;
 
-        try{
-            c = connectionMaker.getConnection();
-
-            pstmt = stmt.makePreparedStatement(c);
-
-            pstmt.executeUpdate();
-        }catch (SQLException e){
+        try {
+            c = dataSource.getConnection();
+            ps = stmt.makePreparedStatement(c);
+            ps.executeUpdate();
+        } catch (SQLException e) {
             throw e;
         } finally {
-            if (pstmt != null) { try { pstmt.close(); } catch (SQLException e) {} }
-            if (c != null){ try { c.close(); } catch (SQLException e){}}
+            if (ps != null) { try { ps.close(); } catch (SQLException e) { } }
+            if (c != null) { try { c.close(); } catch (SQLException e) { } }
         }
-    }
-
-    private PreparedStatement makeStatement(Connection c) throws SQLException {
-        PreparedStatement pstmt;
-        pstmt = c.prepareStatement("delete from users");
-        return pstmt;
-    }
-
-    public void add(User user) throws SQLException {
-        StatementStrategy st = new AddStatement(user);
-        jdbcContextWithStatementStrategy(st);
-    }
-
-    public User findById(String id) throws SQLException {
-        Connection c;
-        try {
-            c = connectionMaker.getConnection();
-
-            PreparedStatement pstmt = c.prepareStatement("SELECT * FROM `users` WHERE id = ?");
-            pstmt.setString(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            User user = null;
-
-            if (rs.next()) {
-                user = new User();
-                user.setId(rs.getString("id"));
-                user.setName(rs.getString("name"));
-                user.setPassword(rs.getString("password"));
-            }
-
-            rs.close();
-            pstmt.close();
-            c.close();
-
-            if (user == null) throw new NullPointerException();
-
-            return user;
-
-        }catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
     public void deleteAll() throws SQLException {
-        StatementStrategy st = new DeleteAllStatement();
-        jdbcContextWithStatementStrategy(st);
+        jdbcContextWithStatementStrategy(
+                new StatementStrategy() {
+                    @Override
+                    public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                        return c.prepareStatement("delete from users");
+                    }
+                }
+        );
     }
 
+    public void add(final User user) throws SQLException {
+        jdbcContextWithStatementStrategy(new StatementStrategy() {
+            @Override
+            public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                PreparedStatement ps = c.prepareStatement("INSERT INTO users(id, name, password) VALUES (?, ?, ?)");
+                ps.setString(1, user.getId());
+                ps.setString(2, user.getName());
+                ps.setString(3, user.getPassword());
+                return ps;
+            }
+        });
+    }
+
+    public User findById(String id) throws SQLException {
+
+        Connection c = dataSource.getConnection();
+
+        PreparedStatement ps = c.prepareStatement("SELECT * FROM `users` WHERE id = ?");
+        ps.setString(1, id);
+        ResultSet rs = ps.executeQuery();
+        User user = null;
+        if (rs.next()) {
+            user = new User();
+            user.setId(rs.getString("id"));
+            user.setName(rs.getString("name"));
+            user.setPassword(rs.getString("password"));
+        }
+        rs.close();
+        ps.close();
+        c.close();
+        if (user == null) throw new NullPointerException();
+        return user;
+    }
     public int getCount() throws SQLException {
         Connection c = null;
-        PreparedStatement pstmt = null;
+        PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
-            c = connectionMaker.getConnection();
+            c = dataSource.getConnection();
 
-            pstmt = makeStatement(c);
+            ps = c.prepareStatement("select count(*) from `users`");
 
-            rs = pstmt.executeQuery();
+            rs = ps.executeQuery();
             rs.next();
             return rs.getInt(1);
-        } catch (Exception e) {
+        } catch (SQLException e) {
             throw e;
         } finally {
             if (rs != null) {
                 try {
                     rs.close();
-                } catch (SQLException e){
-                }
-            }
-            if (pstmt != null) {
-                try {
-                    pstmt.close();
                 } catch (SQLException e) {
                 }
             }
-            if (c != null){
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (c != null) {
                 try {
                     c.close();
-                } catch (SQLException e){
+                } catch (SQLException e) {
                 }
             }
         }
-
-
     }
 }
