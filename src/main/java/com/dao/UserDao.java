@@ -12,7 +12,7 @@ public class UserDao {
         connectionMaker = new AwsConnectionMaker();
     }
 
-    public UserDao(AwsConnectionMaker connectionMaker) {
+    public UserDao(ConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
     }
 
