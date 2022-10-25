@@ -15,6 +15,24 @@ public class UserDao {
         this.connectionMaker = connectionMaker;
     }
 
+    public void jdbcContextWithStatementStrategy(StatementStrategy stmt) throws SQLException {
+        Connection c = null;
+        PreparedStatement pstmt = null;
+
+        try{
+            c = connectionMaker.getConnection();
+
+            pstmt = stmt.makePreparedStatement(c);
+
+            pstmt.executeUpdate();
+        }catch (SQLException e){
+            throw e;
+        } finally {
+            if (pstmt != null) { try { pstmt.close(); } catch (SQLException e) {} }
+            if (c != null){ try { c.close(); } catch (SQLException e){}}
+        }
+    }
+
     private PreparedStatement makeStatement(Connection c) throws SQLException {
         PreparedStatement pstmt;
         pstmt = c.prepareStatement("delete from users");
@@ -73,19 +91,8 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        Connection c = null;
-        PreparedStatement pstmt = null;
-
-        try{
-            c = connectionMaker.getConnection();
-            pstmt = c.prepareStatement("delete from users");
-            pstmt.executeUpdate();
-        }catch (SQLException e){
-            throw e;
-        } finally {
-            if (pstmt != null) { try { pstmt.close(); } catch (SQLException e) {} }
-            if (c != null){ try { c.close(); } catch (SQLException e){}}
-        }
+        StatementStrategy st = new DeleteAllStatement();
+        jdbcContextWithStatementStrategy(st);
     }
 
     public int getCount() throws SQLException {
