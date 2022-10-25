@@ -6,18 +6,21 @@ import java.sql.*;
 import java.util.Map;
 
 public class UserDao {
-    private Connection getConnection() throws SQLException{
-        Map<String, String> env = System.getenv();
-        Connection c = DriverManager.getConnection(env.get("DB_HOST"),
-                env.get("DB_USER"), env.get("DB_PASSWORD"));
+    private ConnectionMaker connectionMaker;
 
-        return c;
+    public UserDao() {
+        connectionMaker = new ConnectionMaker();
     }
+
+    public UserDao(ConnectionMaker connectionMaker) {
+        this.connectionMaker = connectionMaker;
+    }
+
     public void add(User user) {
         Connection c;
         try {
             // DB접속
-            c = getConnection();
+            c = connectionMaker.getConnection();
 
             // Query문 작성
             PreparedStatement pstmt = c.prepareStatement("INSERT INTO users(id, name, password) VALUES(?,?,?);");
@@ -41,7 +44,7 @@ public class UserDao {
         Connection c;
         try {
             // DB접속
-            c = getConnection();
+            c = connectionMaker.getConnection();
 
             // Query문 작성
             PreparedStatement pstmt = c.prepareStatement("SELECT * FROM users WHERE id = ?");
@@ -69,7 +72,7 @@ public class UserDao {
         UserDao userDao = new UserDao();
 
         User user = new User();
-        user.setId("11");
+        user.setId("9");
         user.setName("suin");
         user.setPassword("1234");
 
