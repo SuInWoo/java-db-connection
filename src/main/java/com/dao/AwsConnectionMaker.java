@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 public class AwsConnectionMaker implements ConnectionMaker{
+    @Override
     public Connection getConnection() throws SQLException {
         Map<String, String> env = System.getenv();
         Connection c = DriverManager.getConnection(env.get("DB_HOST"),
