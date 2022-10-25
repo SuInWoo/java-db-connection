@@ -7,10 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -65,9 +67,22 @@ class UserDaoTest {
     @Test
     @DisplayName("user null Test")
     void userNull(){
-        assertThrows(NullPointerException.class, () -> {
+        assertThrows(EmptyResultDataAccessException.class, () -> {
             userDao.deleteAll();
             userDao.findById("30");
         });
+    }
+
+    @Test
+    @DisplayName("null or count return Test")
+    void getAllTest() throws SQLException {
+        userDao.deleteAll();
+        List<User> users = userDao.getAll();
+        assertEquals(0, users.size());
+        userDao.add(user1);
+        userDao.add(user2);
+        userDao.add(user3);
+        users = userDao.getAll();
+        assertEquals(3, users.size());
     }
 }
