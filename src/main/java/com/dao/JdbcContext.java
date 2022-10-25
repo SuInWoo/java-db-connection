@@ -29,7 +29,16 @@ public class JdbcContext {
             if (ps != null) { try { ps.close(); } catch (SQLException e) { } }
             if (c != null) { try { c.close(); } catch (SQLException e) { } }
         }
+    }
 
-
+    public void executeSql(final String query) throws SQLException {
+        workWithStatementStrategy(
+                new StatementStrategy() {
+                    @Override
+                    public PreparedStatement makePreparedStatement(Connection c) throws SQLException {
+                        return c.prepareStatement(query);
+                    }
+                }
+        );
     }
 }
