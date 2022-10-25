@@ -1,10 +1,8 @@
 package com.dao;
 
 import com.domain.User;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.sql.*;
-import java.util.Map;
 
 public class UserDao {
     private ConnectionMaker connectionMaker;
@@ -69,28 +67,66 @@ public class UserDao {
     }
 
     public void deleteAll() throws SQLException {
-        Connection conn = connectionMaker.getConnection();
+        Connection c = null;
+        PreparedStatement pstmt = null;
 
-        PreparedStatement ps = conn.prepareStatement("delete from users");
-
-        ps.executeUpdate();
-        ps.close();
-        conn.close();
+        try{
+            c = connectionMaker.getConnection();
+            pstmt = c.prepareStatement("delete from users");
+            pstmt.executeUpdate();
+        }catch (SQLException e){
+            throw e;
+        } finally {
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (c != null){
+                try {
+                    c.close();
+                } catch (SQLException e){
+                }
+            }
+        }
     }
 
     public int getCount() throws SQLException {
-        Connection conn = connectionMaker.getConnection();
+        Connection c = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
 
-        PreparedStatement ps = conn.prepareStatement("select count(*) from users");
+        try {
+            c = connectionMaker.getConnection();
+            pstmt = c.prepareStatement("select count(*) from users");
 
-        ResultSet rs = ps.executeQuery();
-        rs.next();
-        int count = rs.getInt(1);
+            rs = pstmt.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e){
+                }
+            }
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (c != null){
+                try {
+                    c.close();
+                } catch (SQLException e){
+                }
+            }
+        }
 
-        rs.close();
-        ps.close();
-        conn.close();
 
-        return count;
     }
 }
