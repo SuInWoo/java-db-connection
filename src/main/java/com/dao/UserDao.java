@@ -40,7 +40,6 @@ public class UserDao {
     }
 
     public User findById(String id) {
-        Map<String, String> env = System.getenv();
         Connection c;
         try {
             // DB접속
@@ -67,18 +66,29 @@ public class UserDao {
         }
     }
 
-    //테스트를 위한 main
-    public static void main(String[] args) {
-        UserDao userDao = new UserDao();
+    public void deleteAll() throws SQLException {
+        Connection conn = connectionMaker.getConnection();
 
-        User user = new User();
-        user.setId("15");
-        user.setName("suin");
-        user.setPassword("1234");
+        PreparedStatement ps = conn.prepareStatement("delete from users");
 
-        userDao.add(user);
+        ps.executeUpdate();
+        ps.close();
+        conn.close();
+    }
 
-        User user1 = userDao.findById(user.getId());
-        System.out.println(user1.getName());
+    public int getCount() throws SQLException {
+        Connection conn = connectionMaker.getConnection();
+
+        PreparedStatement ps = conn.prepareStatement("select count(*) from users");
+
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        int count = rs.getInt(1);
+
+        rs.close();
+        ps.close();
+        conn.close();
+
+        return count;
     }
 }

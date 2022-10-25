@@ -11,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLException;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -24,11 +25,25 @@ class UserDaoTest {
     @DisplayName("insert and select Test")
     void addAndGet() throws SQLException {
         UserDao userDao = context.getBean("awsUserDao", UserDao.class);
-        String id = "50";
+        userDao.deleteAll();
+        assertEquals(0, userDao.getCount());
+
+        String id = "1";
         userDao.add(new User(id, "Su", "1234"));
         User user = userDao.findById(id);
 
         assertEquals("Su", user.getName());
         assertEquals("1234", user.getPassword());
+    }
+
+    @Test
+    @DisplayName("delete and count Test")
+    void deleteAndCount() throws SQLException {
+        UserDao userDao = context.getBean("awsUserDao", UserDao.class);
+        userDao.deleteAll();
+        assertEquals(0, userDao.getCount());
+
+        userDao.add(new User("1", "Su", "1234"));
+        assertEquals(1, userDao.getCount());
     }
 }
