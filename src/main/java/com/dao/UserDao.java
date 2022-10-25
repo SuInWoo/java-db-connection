@@ -76,6 +76,7 @@ public class UserDao {
         if (user == null) throw new NullPointerException();
         return user;
     }
+
     public int getCount() throws SQLException {
         Connection c = null;
         PreparedStatement ps = null;
