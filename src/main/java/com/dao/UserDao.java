@@ -10,10 +10,12 @@ import java.sql.SQLException;
 
 public class UserDao {
 
-    private JdbcContext jdbcContext;
+    private final DataSource dataSource;
+    private final JdbcContext jdbcContext;
 
-    public UserDao(JdbcContext jdbcContext) {
-        this.jdbcContext = jdbcContext;
+    public UserDao(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.jdbcContext = new JdbcContext(dataSource);
     }
 
     public void deleteAll() throws SQLException {
