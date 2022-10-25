@@ -1,5 +1,3 @@
 # java-db-connection
 
-Toby’s Spring3 총 복습 순서
-
-<img width="500" alt="image" src="https://user-images.githubusercontent.com/63344592/197692529-6d01ea38-3288-4a98-9e82-f750cbe496bf.png">
+![image](https://user-images.githubusercontent.com/63344592/197693073-2649a6a3-e7a1-410e-b8fe-c3fa462bf10a.png)
