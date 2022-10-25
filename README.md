@@ -1,3 +1,4 @@
 # java-db-connection
 
-![image](https://user-images.githubusercontent.com/63344592/197693073-2649a6a3-e7a1-410e-b8fe-c3fa462bf10a.png)
+<img width="390" alt="image" src="https://user-images.githubusercontent.com/63344592/197693193-152ea7a3-2ffb-4bbf-b2b2-27b820dae6a8.png">
+
