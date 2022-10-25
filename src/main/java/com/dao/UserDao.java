@@ -9,10 +9,10 @@ public class UserDao {
     private ConnectionMaker connectionMaker;
 
     public UserDao() {
-        connectionMaker = new ConnectionMaker();
+        connectionMaker = new AwsConnectionMaker();
     }
 
-    public UserDao(ConnectionMaker connectionMaker) {
+    public UserDao(AwsConnectionMaker connectionMaker) {
         this.connectionMaker = connectionMaker;
     }
 
@@ -72,7 +72,7 @@ public class UserDao {
         UserDao userDao = new UserDao();
 
         User user = new User();
-        user.setId("9");
+        user.setId("15");
         user.setName("suin");
         user.setPassword("1234");
 
